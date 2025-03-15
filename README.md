@@ -10,6 +10,8 @@ A lightweight, customizable, draggable bottom sheet component for React applicat
 - 🎨 Highly customizable appearance and behavior
 - 🌈 Responsive design with percentage and pixel-based sizing
 - 📝 Written in TypeScript with complete type definitions
+- 🧩 Context API for easy sheet management across components
+- ♿ Fully accessible with ARIA attributes and keyboard support
 - 🔧 Zero dependencies (other than React)
 
 ## Installation
@@ -21,6 +23,8 @@ yarn add react-webview-bottomsheet
 ```
 
 ## Usage
+
+### Basic Usage
 
 ```jsx
 import React, { useState } from "react";
@@ -42,7 +46,7 @@ const App = () => {
         snapPoints={[20, 50, 90]}
       >
         <div>
-          <h2>Bottom Sheet Content</h2>
+          <h2 id="sheet-title">Bottom Sheet Content</h2>
           <p>This is the content of your bottom sheet</p>
         </div>
       </BottomSheet>
@@ -51,6 +55,41 @@ const App = () => {
 };
 
 export default App;
+```
+
+### Using the Context Provider
+
+The library includes a context provider for managing bottom sheets across your application:
+
+```jsx
+import React from "react";
+import { BottomSheetProvider, useBottomSheet } from "react-webview-bottomsheet";
+
+// Wrap your application with the provider
+const App = () => {
+  return (
+    <BottomSheetProvider
+      defaultProps={{ roundedCorners: true, cornerRadius: "16px" }}
+    >
+      <YourApp />
+    </BottomSheetProvider>
+  );
+};
+
+// Use the hook in any component
+const YourComponent = () => {
+  const { showBottomSheet, hideBottomSheet } = useBottomSheet();
+
+  const handleOpenSheet = () => {
+    showBottomSheet({
+      children: <YourContent />,
+      initialHeight: "40%",
+      onClose: () => hideBottomSheet(),
+    });
+  };
+
+  return <button onClick={handleOpenSheet}>Open Sheet</button>;
+};
 ```
 
 ## Props
@@ -71,6 +110,7 @@ export default App;
 | `backdropColor`       | string                      | 'rgba(0, 0, 0, 0.5)' | Background color of the overlay                              |
 | `showBackdrop`        | boolean                     | true                 | Whether to show the backdrop                                 |
 | `closeOnClickOutside` | boolean                     | true                 | Whether to hide the bottom sheet when clicking outside       |
+| `closeOnEscape`       | boolean                     | true                 | Whether to close the bottom sheet when pressing Escape       |
 | `onClose`             | () => void                  | undefined            | Callback when the bottom sheet is closed                     |
 | `onHeightChange`      | (height: number) => void    | undefined            | Callback when the bottom sheet height changes                |
 | `onSnap`              | (snapIndex: number) => void | undefined            | Callback when the bottom sheet reaches a snap point          |
@@ -81,6 +121,10 @@ export default App;
 | `cornerRadius`        | string                      | '12px'               | Radius for the top rounded corners (if enabled)              |
 | `animated`            | boolean                     | true                 | Whether the sheet should animate when appearing/disappearing |
 | `animationDuration`   | number                      | 300                  | Animation duration in milliseconds                           |
+| `id`                  | string                      | undefined            | ID for the bottom sheet component (for accessibility)        |
+| `className`           | string                      | undefined            | Class name for the bottom sheet container                    |
+| `contentClassName`    | string                      | undefined            | Class name for the content container                         |
+| `handleClassName`     | string                      | undefined            | Class name for the handle                                    |
 
 ## Advanced Examples
 
@@ -109,8 +153,44 @@ const App = () => {
         }}
       >
         <div>
-          <h2>Bottom Sheet Content</h2>
+          <h2 id="sheet-title">Bottom Sheet Content</h2>
           <p>Current snap point: {currentSnapPoint}</p>
+          <button onClick={() => setIsOpen(false)}>Close</button>
+        </div>
+      </BottomSheet>
+    </div>
+  );
+};
+```
+
+### Accessibility Best Practices
+
+```jsx
+import React, { useState } from "react";
+import { BottomSheet } from "react-webview-bottomsheet";
+
+const App = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const sheetId = "accessible-sheet";
+
+  return (
+    <div>
+      <button
+        onClick={() => setIsOpen(true)}
+        aria-haspopup="dialog"
+        aria-controls={sheetId}
+      >
+        Open Bottom Sheet
+      </button>
+
+      <BottomSheet
+        isVisible={isOpen}
+        onClose={() => setIsOpen(false)}
+        id={sheetId}
+      >
+        <div>
+          <h2 id={`${sheetId}-title`}>Accessible Bottom Sheet</h2>
+          <p>This bottom sheet is fully accessible.</p>
           <button onClick={() => setIsOpen(false)}>Close</button>
         </div>
       </BottomSheet>
@@ -149,6 +229,9 @@ const App = () => {
           padding: "20px",
         }}
         backdropColor="rgba(33, 37, 41, 0.6)"
+        className="custom-bottom-sheet"
+        contentClassName="custom-content"
+        handleClassName="custom-handle"
       >
         <div>
           <h2>Custom Styled Bottom Sheet</h2>
@@ -177,6 +260,33 @@ This component is specifically optimized for use in mobile webviews:
 - Performance optimizations to reduce jank during dragging
 - Proper handling of viewport heights for mobile screens
 - Appropriate defaults for mobile UX patterns
+- WebkitOverflowScrolling for smooth scrolling on iOS
+
+## Accessibility
+
+The component is built with accessibility in mind:
+
+- Proper ARIA roles and attributes
+- Keyboard navigation support
+- Screen reader friendly
+- Focus management
+- Escape key support for closing
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run storybook for development
+npm run storybook
+
+# Run tests
+npm test
+
+# Build the package
+npm run build
+```
 
 ## License
 
