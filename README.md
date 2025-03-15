@@ -13,6 +13,7 @@ A lightweight, customizable, draggable bottom sheet component for React applicat
 - 🧩 Context API for easy sheet management across components
 - ♿ Fully accessible with ARIA attributes and keyboard support
 - 🔧 Zero dependencies (other than React)
+- 🚀 Enhanced dragging with `DraggableBottomSheet` component
 
 ## Installation
 
@@ -24,7 +25,7 @@ yarn add react-webview-bottomsheet
 
 ## Usage
 
-### Basic Usage
+### Basic BottomSheet
 
 ```jsx
 import React, { useState } from "react";
@@ -57,7 +58,90 @@ const App = () => {
 export default App;
 ```
 
-### Using the Context Provider
+### Enhanced DraggableBottomSheet (New!)
+
+The `DraggableBottomSheet` component extends the basic BottomSheet with improved drag functionality:
+
+```jsx
+import React, { useState } from "react";
+import { DraggableBottomSheet } from "react-webview-bottomsheet";
+
+const App = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentHeight, setCurrentHeight] = useState(50);
+
+  return (
+    <div>
+      <button onClick={() => setIsOpen(true)}>Open Bottom Sheet</button>
+      <p>Current height: {currentHeight.toFixed(1)}%</p>
+
+      <DraggableBottomSheet
+        isVisible={isOpen}
+        onClose={() => setIsOpen(false)}
+        initialHeight="50%" // Start at 50% height
+        snapPoints={[30, 50, 80]}
+        // Enhanced drag functionality
+        showDragArea={true}
+        dragAreaText="Drag to resize"
+        onHeightPercentChange={(height) => setCurrentHeight(height)}
+      >
+        <div>
+          <h2>Draggable Bottom Sheet</h2>
+          <p>This bottom sheet has enhanced drag functionality</p>
+        </div>
+      </DraggableBottomSheet>
+    </div>
+  );
+};
+```
+
+## DraggableBottomSheet Props
+
+The `DraggableBottomSheet` component extends all props from `BottomSheet` and adds:
+
+| Prop                    | Type                     | Default           | Description                                          |
+| ----------------------- | ------------------------ | ----------------- | ---------------------------------------------------- |
+| `showDragArea`          | boolean                  | true              | Whether to show the extra drag area inside the sheet |
+| `dragAreaStyle`         | CSSProperties            | {}                | Custom styles for the internal drag area             |
+| `dragAreaClassName`     | string                   | ""                | Class name for the internal drag area                |
+| `dragAreaText`          | string                   | "드래그하여 이동" | Text to display in the drag area                     |
+| `onHeightPercentChange` | (height: number) => void | undefined         | Callback with current height as percentage           |
+
+## BottomSheet Props
+
+| Prop                  | Type                        | Default              | Description                                                  |
+| --------------------- | --------------------------- | -------------------- | ------------------------------------------------------------ |
+| `children`            | ReactNode                   | (required)           | Content to render inside the bottom sheet                    |
+| `initialHeight`       | string                      | '30%'                | Initial height of the bottom sheet (when not expanded)       |
+| `maxHeight`           | string                      | '90%'                | Maximum height the bottom sheet can expand to                |
+| `minHeight`           | string                      | '10%'                | Minimum height the bottom sheet can shrink to                |
+| `isVisible`           | boolean                     | true                 | Whether the bottom sheet is initially visible                |
+| `enableSnapping`      | boolean                     | true                 | Whether the bottom sheet should snap to predefined points    |
+| `isDraggable`         | boolean                     | true                 | Whether the bottom sheet should be draggable                 |
+| `snapPoints`          | number[]                    | [30, 60, 90]         | Snap points as percentage of viewport height                 |
+| `containerStyle`      | CSSProperties               | {}                   | Custom styles for the bottom sheet container                 |
+| `contentStyle`        | CSSProperties               | {}                   | Custom styles for the bottom sheet content                   |
+| `handleStyle`         | CSSProperties               | {}                   | Custom styles for the handle/drag indicator                  |
+| `backdropColor`       | string                      | 'rgba(0, 0, 0, 0.5)' | Background color of the overlay                              |
+| `showBackdrop`        | boolean                     | true                 | Whether to show the backdrop                                 |
+| `closeOnClickOutside` | boolean                     | true                 | Whether to hide the bottom sheet when clicking outside       |
+| `closeOnEscape`       | boolean                     | true                 | Whether to close the bottom sheet when pressing Escape       |
+| `onClose`             | () => void                  | undefined            | Callback when the bottom sheet is closed                     |
+| `onHeightChange`      | (height: number) => void    | undefined            | Callback when the bottom sheet height changes                |
+| `onSnap`              | (snapIndex: number) => void | undefined            | Callback when the bottom sheet reaches a snap point          |
+| `onDragStart`         | () => void                  | undefined            | Callback when the bottom sheet starts being dragged          |
+| `onDragEnd`           | () => void                  | undefined            | Callback when the bottom sheet stops being dragged           |
+| `showHandle`          | boolean                     | true                 | Whether to show the drag handle indicator                    |
+| `roundedCorners`      | boolean                     | true                 | Whether to round the top corners of the bottom sheet         |
+| `cornerRadius`        | string                      | '12px'               | Radius for the top rounded corners (if enabled)              |
+| `animated`            | boolean                     | true                 | Whether the sheet should animate when appearing/disappearing |
+| `animationDuration`   | number                      | 300                  | Animation duration in milliseconds                           |
+| `id`                  | string                      | undefined            | ID for the bottom sheet component (for accessibility)        |
+| `className`           | string                      | undefined            | Class name for the bottom sheet container                    |
+| `contentClassName`    | string                      | undefined            | Class name for the content container                         |
+| `handleClassName`     | string                      | undefined            | Class name for the handle                                    |
+
+## Using the Context Provider
 
 The library includes a context provider for managing bottom sheets across your application:
 
@@ -92,157 +176,6 @@ const YourComponent = () => {
 };
 ```
 
-## Props
-
-| Prop                  | Type                        | Default              | Description                                                  |
-| --------------------- | --------------------------- | -------------------- | ------------------------------------------------------------ |
-| `children`            | ReactNode                   | (required)           | Content to render inside the bottom sheet                    |
-| `initialHeight`       | string                      | '30%'                | Initial height of the bottom sheet (when not expanded)       |
-| `maxHeight`           | string                      | '90%'                | Maximum height the bottom sheet can expand to                |
-| `minHeight`           | string                      | '10%'                | Minimum height the bottom sheet can shrink to                |
-| `isVisible`           | boolean                     | true                 | Whether the bottom sheet is initially visible                |
-| `enableSnapping`      | boolean                     | true                 | Whether the bottom sheet should snap to predefined points    |
-| `isDraggable`         | boolean                     | true                 | Whether the bottom sheet should be draggable                 |
-| `snapPoints`          | number[]                    | [30, 60, 90]         | Snap points as percentage of viewport height                 |
-| `containerStyle`      | CSSProperties               | {}                   | Custom styles for the bottom sheet container                 |
-| `contentStyle`        | CSSProperties               | {}                   | Custom styles for the bottom sheet content                   |
-| `handleStyle`         | CSSProperties               | {}                   | Custom styles for the handle/drag indicator                  |
-| `backdropColor`       | string                      | 'rgba(0, 0, 0, 0.5)' | Background color of the overlay                              |
-| `showBackdrop`        | boolean                     | true                 | Whether to show the backdrop                                 |
-| `closeOnClickOutside` | boolean                     | true                 | Whether to hide the bottom sheet when clicking outside       |
-| `closeOnEscape`       | boolean                     | true                 | Whether to close the bottom sheet when pressing Escape       |
-| `onClose`             | () => void                  | undefined            | Callback when the bottom sheet is closed                     |
-| `onHeightChange`      | (height: number) => void    | undefined            | Callback when the bottom sheet height changes                |
-| `onSnap`              | (snapIndex: number) => void | undefined            | Callback when the bottom sheet reaches a snap point          |
-| `onDragStart`         | () => void                  | undefined            | Callback when the bottom sheet starts being dragged          |
-| `onDragEnd`           | () => void                  | undefined            | Callback when the bottom sheet stops being dragged           |
-| `showHandle`          | boolean                     | true                 | Whether to show the drag handle indicator                    |
-| `roundedCorners`      | boolean                     | true                 | Whether to round the top corners of the bottom sheet         |
-| `cornerRadius`        | string                      | '12px'               | Radius for the top rounded corners (if enabled)              |
-| `animated`            | boolean                     | true                 | Whether the sheet should animate when appearing/disappearing |
-| `animationDuration`   | number                      | 300                  | Animation duration in milliseconds                           |
-| `id`                  | string                      | undefined            | ID for the bottom sheet component (for accessibility)        |
-| `className`           | string                      | undefined            | Class name for the bottom sheet container                    |
-| `contentClassName`    | string                      | undefined            | Class name for the content container                         |
-| `handleClassName`     | string                      | undefined            | Class name for the handle                                    |
-
-## Advanced Examples
-
-### Custom Snap Points with Callbacks
-
-```jsx
-import React, { useState } from "react";
-import { BottomSheet } from "react-webview-bottomsheet";
-
-const App = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [currentSnapPoint, setCurrentSnapPoint] = useState(0);
-
-  return (
-    <div>
-      <button onClick={() => setIsOpen(true)}>Open Bottom Sheet</button>
-
-      <BottomSheet
-        isVisible={isOpen}
-        onClose={() => setIsOpen(false)}
-        enableSnapping={true}
-        snapPoints={[20, 50, 80]}
-        onSnap={(snapIndex) => {
-          setCurrentSnapPoint(snapIndex);
-          console.log(`Snapped to index ${snapIndex}`);
-        }}
-      >
-        <div>
-          <h2 id="sheet-title">Bottom Sheet Content</h2>
-          <p>Current snap point: {currentSnapPoint}</p>
-          <button onClick={() => setIsOpen(false)}>Close</button>
-        </div>
-      </BottomSheet>
-    </div>
-  );
-};
-```
-
-### Accessibility Best Practices
-
-```jsx
-import React, { useState } from "react";
-import { BottomSheet } from "react-webview-bottomsheet";
-
-const App = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const sheetId = "accessible-sheet";
-
-  return (
-    <div>
-      <button
-        onClick={() => setIsOpen(true)}
-        aria-haspopup="dialog"
-        aria-controls={sheetId}
-      >
-        Open Bottom Sheet
-      </button>
-
-      <BottomSheet
-        isVisible={isOpen}
-        onClose={() => setIsOpen(false)}
-        id={sheetId}
-      >
-        <div>
-          <h2 id={`${sheetId}-title`}>Accessible Bottom Sheet</h2>
-          <p>This bottom sheet is fully accessible.</p>
-          <button onClick={() => setIsOpen(false)}>Close</button>
-        </div>
-      </BottomSheet>
-    </div>
-  );
-};
-```
-
-### Custom Styling
-
-```jsx
-import React, { useState } from "react";
-import { BottomSheet } from "react-webview-bottomsheet";
-
-const App = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <div>
-      <button onClick={() => setIsOpen(true)}>Open Bottom Sheet</button>
-
-      <BottomSheet
-        isVisible={isOpen}
-        onClose={() => setIsOpen(false)}
-        containerStyle={{
-          backgroundColor: "#f8f9fa",
-          borderTopLeftRadius: "20px",
-          borderTopRightRadius: "20px",
-        }}
-        handleStyle={{
-          backgroundColor: "#e9ecef",
-          width: "60px",
-          height: "6px",
-        }}
-        contentStyle={{
-          padding: "20px",
-        }}
-        backdropColor="rgba(33, 37, 41, 0.6)"
-        className="custom-bottom-sheet"
-        contentClassName="custom-content"
-        handleClassName="custom-handle"
-      >
-        <div>
-          <h2>Custom Styled Bottom Sheet</h2>
-          <p>This bottom sheet has custom styling applied</p>
-        </div>
-      </BottomSheet>
-    </div>
-  );
-};
-```
-
 ## Browser Support
 
 The component is designed to work on all modern browsers that support touch events, including:
@@ -261,6 +194,14 @@ This component is specifically optimized for use in mobile webviews:
 - Proper handling of viewport heights for mobile screens
 - Appropriate defaults for mobile UX patterns
 - WebkitOverflowScrolling for smooth scrolling on iOS
+
+## Server-Side Rendering (SSR) Support
+
+The component is fully compatible with server-side rendering frameworks like Next.js:
+
+- Safely handles window and document references
+- Proper hydration during client-side initialization
+- Deferred calculations that depend on browser APIs
 
 ## Accessibility
 

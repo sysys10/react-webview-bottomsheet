@@ -3,6 +3,9 @@ import { useA11yProps } from "./hooks/useA11yProps";
 import { useDragHandlers } from "./hooks/useDragHandlers";
 import type { BottomSheetProps } from "./types";
 
+// 서버사이드 렌더링을 확인하는 헬퍼 함수
+const isBrowser = typeof window !== "undefined";
+
 export const BottomSheet: React.FC<BottomSheetProps> = ({
   children,
   initialHeight = "30%",
@@ -18,6 +21,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   backdropColor = "rgba(0, 0, 0, 0.5)",
   showBackdrop = true,
   closeOnClickOutside = true,
+  sheetHeight,
+  setSheetHeight,
   onClose,
   onHeightChange,
   onSnap,
@@ -36,6 +41,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 }) => {
   // Convert initial height to numeric value for calculations
   const getInitialHeightValue = useCallback(() => {
+    if (!isBrowser) return 0; // 서버사이드에서는 0 반환
+
     if (typeof initialHeight === "string") {
       if (initialHeight.endsWith("%")) {
         return (parseFloat(initialHeight) / 100) * window.innerHeight;
@@ -43,11 +50,13 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
         return parseFloat(initialHeight);
       }
     }
-    return 0.3 * window.innerHeight; // Default 30% of window height
+    return isBrowser ? 0.3 * window.innerHeight : 0; // 서버사이드 대응
   }, [initialHeight]);
 
   // Convert string height values to numeric pixel values
   const getPixelValue = useCallback((value: string): number => {
+    if (!isBrowser) return 0; // 서버사이드에서는 0 반환
+
     if (value.endsWith("%")) {
       return (parseFloat(value) / 100) * window.innerHeight;
     } else if (value.endsWith("px")) {
@@ -56,10 +65,12 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     return parseFloat(value);
   }, []);
 
-  // State for the sheet's current height
-  const [sheetHeight, setSheetHeight] = useState<number>(
-    getInitialHeightValue()
-  );
+  // 클라이언트에서만 초기 높이 설정
+  useEffect(() => {
+    if (isBrowser) {
+      setSheetHeight(getInitialHeightValue());
+    }
+  }, [getInitialHeightValue]);
 
   // State to track if the user is currently dragging
   const [isDragging, setIsDragging] = useState<boolean>(false);
@@ -71,8 +82,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   const sheetRef = useRef<HTMLDivElement>(null);
 
   // Get pixel values for min and max heights
-  const minHeightPx = getPixelValue(minHeight);
-  const maxHeightPx = getPixelValue(maxHeight);
+  const minHeightPx = isBrowser ? getPixelValue(minHeight) : 0;
+  const maxHeightPx = isBrowser ? getPixelValue(maxHeight) : 0;
 
   // Track the starting position of the drag
   const dragStartY = useRef<number>(0);
@@ -81,7 +92,7 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
   // Find the nearest snap point (if snapping is enabled)
   const findNearestSnapPoint = useCallback(
     (height: number): number => {
-      if (!enableSnapping) return height;
+      if (!enableSnapping || !isBrowser) return height;
 
       const snapPointsPixels = snapPoints.map(
         (point) => (point / 100) * window.innerHeight
@@ -143,6 +154,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   // Handle escape key press
   useEffect(() => {
+    if (!isBrowser) return; // 서버사이드에서는 실행하지 않음
+
     const handleEscapeKey = (event: KeyboardEvent) => {
       if (closeOnEscape && visible && event.key === "Escape" && onClose) {
         onClose();
@@ -167,6 +180,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
 
   // Handle resize event to adjust heights
   useEffect(() => {
+    if (!isBrowser) return; // 서버사이드에서는 실행하지 않음
+
     const handleResize = () => {
       setSheetHeight(getInitialHeightValue());
     };
@@ -190,7 +205,6 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     backgroundColor: backdropColor,
     display: showBackdrop && visible ? "block" : "none",
     opacity: visible ? 1 : 0,
-    transition: animated ? `opacity ${animationDuration}ms ease` : "none",
     zIndex: 9998,
   };
 
@@ -230,8 +244,8 @@ export const BottomSheet: React.FC<BottomSheetProps> = ({
     ...contentStyle,
   };
 
-  // If the sheet is not visible, don't render anything
-  if (!visible && !showBackdrop) {
+  // 서버사이드 렌더링 중이고 백드롭도 표시하지 않는 경우 아무것도 렌더링하지 않음
+  if ((!isBrowser || !visible) && !showBackdrop) {
     return null;
   }
 

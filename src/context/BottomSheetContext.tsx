@@ -73,3 +73,26 @@ export const useBottomSheet = () => {
 
   return context;
 };
+
+/**
+ * 서버사이드 렌더링을 지원하는 Consumer 컴포넌트
+ * 서버사이드에서는 null을 렌더링하고, 클라이언트에서만 실제 컴포넌트를 렌더링합니다.
+ */
+export const SSRSafeConsumer: React.FC<{
+  children: (context: BottomSheetContextProps) => React.ReactNode;
+}> = ({ children }) => {
+  const isBrowser = typeof window !== "undefined";
+  const [mounted, setMounted] = useState(false);
+
+  // 클라이언트 사이드에서만 마운트 상태를 true로 설정
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // 서버 사이드이거나 아직 마운트되지 않은 경우 null 반환
+  if (!isBrowser || !mounted) {
+    return null;
+  }
+
+  return <BottomSheetContext.Consumer>{children}</BottomSheetContext.Consumer>;
+};

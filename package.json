@@ -1,5 +1,5 @@
 {
-  "name": "react-webview-bottomsheet",
+  "name": "react-web-bottomsheet",
   "version": "1.0.0",
   "description": "A lightweight, customizable, draggable bottom sheet component for React applications",
   "main": "dist/index.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sysys10/react-webview-bottomsheet.git"
+    "url": "git+https://github.com/sysys10/react-simple-bottomsheet.git"
   },
   "keywords": [
     "react",
@@ -34,10 +34,6 @@
   ],
   "author": "신윤수",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/sysys10/react-webview-bottomsheet/issues"
-  },
-  "homepage": "https://github.com/sysys10/react-webview-bottomsheet#readme",
   "peerDependencies": {
     "react": ">=16.8.0",
     "react-dom": ">=16.8.0"

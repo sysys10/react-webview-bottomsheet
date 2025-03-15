@@ -52,6 +52,9 @@ export interface BottomSheetProps {
    */
   snapPoints?: number[];
 
+  sheetHeight: number;
+  setSheetHeight: React.Dispatch<React.SetStateAction<number>>;
+
   /**
    * Custom styles for the bottom sheet container
    */
